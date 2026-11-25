@@ -1,0 +1,6 @@
+{
+  "name": "ProviderLink FHIR Platform",
+  "description": "Multi-tenant Medicaid provider management and healthcare interoperability platform with FHIR R4 connectivity, enrollment lifecycle, eCR, UDS+, and conformance tooling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
