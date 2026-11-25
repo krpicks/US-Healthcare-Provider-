@@ -680,17 +680,17 @@ export const MODULE_REGISTRY: ModuleDefinition[] = [
     route: '/documentation',
     status: 'Completed',
     description:
-      'Registry-driven layered & solution architecture viewer, setup guides (HAPI, eCRNow, .NET, Inferno), ADRs, CI/CD summary, and Markdown export.',
+      'Registry-driven layered & solution architecture viewer, complete User Manual/Diagrams/ARD/ARB PDF pack, setup guides (HAPI, eCRNow, .NET, Inferno), ADRs, CI/CD summary, and Markdown export.',
     dependencies: ['M24', 'M1'],
     eventsPublished: [],
     fhirResources: [],
     tests: {
       suiteName: 'm21-docs-registry.test.ts',
       status: 'Passing',
-      passed: 4,
+      passed: 5,
       failed: 0,
-      total: 4,
-      lastRunAt: 'Phase 4 verification',
+      total: 5,
+      lastRunAt: 'Phase 5 verification',
     },
   },
 ];

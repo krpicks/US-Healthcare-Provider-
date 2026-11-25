@@ -6,12 +6,21 @@ import {
 } from '../../../app/moduleRegistry';
 import { ALL_ACTIONS, ALL_ROLES, PERMISSION_MATRIX } from '../../../app/rbac';
 import {
+  API_BUSINESS_CATALOGUE,
+  ARB_RISK_REGISTER,
+  ARB_SCORECARD,
+  ARD_REQUIREMENTS,
+  DB_ENTITY_CATALOGUE,
+  STRIDE_THREAT_MODEL,
+} from '../architectureDiagramsData';
+import {
   ARCHITECTURE_ADRS,
   CICD_STAGES,
   DEPLOYMENT_ENVIRONMENTS,
   SETUP_GUIDES,
   docsService,
 } from '../docsService';
+import { buildUserManualPdf } from '../pdfManualGenerator';
 
 describe('M21 Documentation, Architecture Registry & Deployment', () => {
   it('verifies every module in MODULE_REGISTRY has a unique route, an implemented page, a PERMISSION_MATRIX entry for every role, and a Build Status registry entry', () => {
@@ -77,5 +86,21 @@ describe('M21 Documentation, Architecture Registry & Deployment', () => {
     expect(md).toContain('## 5. Architecture Decision Log (ADRs)');
     expect(md).toContain('## 6. Deployment Environments');
     expect(md).toContain('## 7. CI/CD Pipeline Summary (12 Stages)');
+  });
+
+  it('generates a complete multi-page User Manual, Diagrams, API, ARD & ARB PDF pack with populated enterprise catalogues', () => {
+    expect(API_BUSINESS_CATALOGUE.length).toBeGreaterThanOrEqual(8);
+    expect(DB_ENTITY_CATALOGUE.length).toBeGreaterThanOrEqual(6);
+    expect(ARD_REQUIREMENTS.length).toBeGreaterThanOrEqual(6);
+    expect(ARB_SCORECARD.length).toBeGreaterThanOrEqual(6);
+    expect(ARB_RISK_REGISTER.length).toBeGreaterThanOrEqual(5);
+    expect(STRIDE_THREAT_MODEL.length).toBe(6);
+
+    const doc = buildUserManualPdf();
+    expect(doc.getNumberOfPages()).toBeGreaterThanOrEqual(9);
+    const pdfBytes = new Uint8Array(doc.output('arraybuffer'));
+    const header = String.fromCharCode(...pdfBytes.slice(0, 5));
+    expect(header).toBe('%PDF-');
+    expect(pdfBytes.byteLength).toBeGreaterThan(25000);
   });
 });

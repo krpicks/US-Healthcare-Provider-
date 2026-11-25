@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Copy,
   Download,
+  FileText,
   GitBranch,
   Layers,
   Server,
@@ -15,6 +16,7 @@ import {
   Tabs,
   useToast,
 } from '../../components';
+import { ArchitectureVisualsPanel } from './ArchitectureVisualsPanel';
 import {
   ARCHITECTURE_ADRS,
   CICD_STAGES,
@@ -23,10 +25,13 @@ import {
   SOLUTION_NODES,
   docsService,
 } from './docsService';
+import { downloadUserManualPdf } from './pdfManualGenerator';
 
 export function DocumentationPage() {
   const { showToast } = useToast();
-  const [tab, setTab] = useState<'architecture' | 'catalogues' | 'setup' | 'adrs' | 'deploy' | 'export'>('architecture');
+  const [tab, setTab] = useState<
+    'manual-arb' | 'architecture' | 'catalogues' | 'setup' | 'adrs' | 'deploy' | 'export'
+  >('manual-arb');
 
   const layers = docsService.getModulesByLayer();
   const events = docsService.getEventCatalogue();
@@ -39,29 +44,51 @@ export function DocumentationPage() {
     showToast(`Copied ${label} to clipboard.`, 'success');
   };
 
+  const handleDownloadPdf = () => {
+    try {
+      downloadUserManualPdf();
+      showToast(
+        'Generated & downloaded ProviderLink_User_Manual_Diagrams_ARD_ARB.pdf.',
+        'success',
+      );
+    } catch (err) {
+      showToast(
+        `Failed to generate PDF: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        'error',
+      );
+    }
+  };
+
   return (
     <Guard moduleId="m21-docs" action="view">
       <div className="space-y-6">
         <PageHeader
           kicker="M21 · Architecture, Docs & Deployment"
-          title="Documentation, Architecture Viewer & Deployment"
-          description="Registry-driven layered and solution architecture diagrams, module/event/FHIR catalogues, copyable local setup guides (HAPI :8081, eCRNow :8080, .NET :5000, Inferno :4567), ADRs, 12-stage CI/CD summary, and unified Markdown export."
+          title="Documentation, User Manual, ARD/ARB & Deployment"
+          description="Complete User Manual PDF pack (vector Business Flow, Sequence, ER/DB & API diagrams, ARD, ARB Scorecard, STRIDE Threat Model, Risk Register & RBAC), plus registry-driven architecture, setup guides, ADRs, and 12-stage CI/CD."
           actions={
-            <Button
-              onClick={() => {
-                const blob = new Blob([fullMarkdown], { type: 'text/markdown' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'ProviderLink-Architecture-Documentation.md';
-                a.click();
-                URL.revokeObjectURL(url);
-                showToast('Exported complete documentation as Markdown.', 'success');
-              }}
-            >
-              <Download className="h-4 w-4" aria-hidden="true" />
-              Export All Docs (.md)
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button onClick={handleDownloadPdf}>
+                <FileText className="h-4 w-4" aria-hidden="true" />
+                Download User Manual PDF
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  const blob = new Blob([fullMarkdown], { type: 'text/markdown' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'ProviderLink-Architecture-Documentation.md';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  showToast('Exported complete documentation as Markdown.', 'success');
+                }}
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                Export All Docs (.md)
+              </Button>
+            </div>
           }
         />
 
@@ -69,6 +96,7 @@ export function DocumentationPage() {
           activeTab={tab}
           onChange={(id) => setTab(id as typeof tab)}
           tabs={[
+            { id: 'manual-arb', label: 'User Manual, Diagrams, ARD & ARB' },
             { id: 'architecture', label: 'Architecture Diagrams' },
             { id: 'catalogues', label: 'Events, FHIR & Roles' },
             { id: 'setup', label: 'Local Setup Guides' },
@@ -77,6 +105,10 @@ export function DocumentationPage() {
             { id: 'export', label: 'Markdown Export Preview' },
           ]}
         />
+
+        {tab === 'manual-arb' && (
+          <ArchitectureVisualsPanel onDownloadPdf={handleDownloadPdf} />
+        )}
 
         {tab === 'architecture' && (
           <div className="space-y-6">
